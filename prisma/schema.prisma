@@ -1,0 +1,27 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:database.sqlite"
+}
+
+model User {
+  id              String  @id
+  drops_enabled   Boolean @default(false)
+  grabs_enabled   Boolean @default(false)
+  series_enabled  Boolean @default(false)
+  quests_enabled  Boolean @default(false)
+  drops           String  @default("0")
+  grabs           String  @default("0")
+  series          String  @default("0")
+  quests          String  @default("0")
+}
