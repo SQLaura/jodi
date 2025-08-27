@@ -1,8 +1,5 @@
 const { Client, Events, Collection, GatewayIntentBits } = require("discord.js");
-const { PrismaClient } = require("./generated/prisma");
-
 const fs = require("node:fs");
-const db = new PrismaClient();
 const client = new Client(
   {
     intents: [
@@ -13,7 +10,6 @@ const client = new Client(
 );
 
 client.commands = new Collection();
-client.db = db;
 
 console.log("=".repeat(process.stdout.columns || 16));
 
