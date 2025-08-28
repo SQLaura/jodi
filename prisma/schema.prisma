@@ -16,12 +16,12 @@ datasource db {
 
 model User {
   id              String  @id
-  drops_enabled   Boolean @default(false)
-  grabs_enabled   Boolean @default(false)
+  drop_enabled    Boolean @default(false)
+  grab_enabled    Boolean @default(false)
   series_enabled  Boolean @default(false)
-  quests_enabled  Boolean @default(false)
-  drops           String  @default("0")
-  grabs           String  @default("0")
+  quest_enabled   Boolean @default(false)
+  drop            String  @default("0")
+  grab            String  @default("0")
   series          String  @default("0")
-  quests          String  @default("0")
+  quest           String  @default("0")
 }
