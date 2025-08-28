@@ -1,4 +1,4 @@
-const { Events } = require("discord.js");
+const { Events, Message } = require("discord.js");
 const constants = require("../constants.js");
 const {
   isRegistered,
@@ -11,6 +11,7 @@ const {
 
 const cooldownRegex = /.*\*\*`(Drop|Grab|Series)\s*.*\*\*(.*)\*\*/;
 const timeRegex = /^(?:(?<minutes>\d+)m)?\s*(?:(?<seconds>\d+)s)?$/i;
+const grabRegex = /.*\(`[!a-zA-Z0-9]+`\) \|.*/;
 
 module.exports = {
   name: Events.MessageCreate,
@@ -44,9 +45,19 @@ module.exports = {
   },
 };
 
-function sofiHandler(message) {
-  // this is for grab message
-  console.log("im sofing it so hard");
+/** @param { Message } message */
+async function sofiHandler(message) {
+  // grab message handler
+  const mentions = message.mentions.parsedUsers;
+  if (mentions.size == 0) return;
+
+  const grabMatch = grabRegex.exec(message.content);
+  if (!grabMatch) return;
+
+  const user = mentions.first();
+  if (!await isRegistered(user.id)) return;
+
+  assignReminders(user.id, "grab", (Math.ceil(+Date.now() / 1000) + 4 * 60).toString());
   return;
 }
 
