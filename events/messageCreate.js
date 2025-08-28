@@ -15,8 +15,9 @@ const grabRegex = /.*\(`[!a-zA-Z0-9]+`\) \|.*/;
 
 module.exports = {
   name: Events.MessageCreate,
+  /** @param { Message } message */
   async execute(message) {
-    if (message.author.id == constants.SOFI) {
+    if (message.author.id === constants.SOFI) {
       sofiHandler(message);
       return;
     }
@@ -55,7 +56,7 @@ module.exports = {
 async function sofiHandler(message) {
   // grab message handler
   const mentions = message.mentions.parsedUsers;
-  if (mentions.size == 0) return;
+  if (mentions.size === 0) return;
 
   const grabMatch = grabRegex.exec(message.content);
   if (!grabMatch) return;
@@ -64,6 +65,7 @@ async function sofiHandler(message) {
   if (!await isRegistered(user.id)) return;
 
   assignReminders(user.id, "grab", (Math.ceil(+Date.now() / 1000) + 4 * 60).toString());
+  message.react("1408800862301585488");
   return;
 }
 
@@ -95,35 +97,38 @@ async function sofiCooldownHandler(message) {
   // return if user doesn't have any reminders enabled
   if (!await anyRemindersEnabled(message.author.id)) return;
 
+  /** @param { Message } m */
   const filter = m =>
-    m.author.id == constants.SOFI &&
+    m.author.id === constants.SOFI &&
     m.embeds.length > 0 && m.embeds[0].author &&
       m.embeds[0].author.name.includes(message.author.username);
   const collector = message.channel.createMessageCollector({ filter, time: 5000 });
 
-  collector.on("collect", async (m) => {
-    const desc = m.embeds[0].description;
-    for (const line of desc.split("\n")) {
-      const match = cooldownRegex.exec(line);
-      if (!match) continue;
+  collector.on("collect",
+    /** @param { Message } m */
+    async (m) => {
+      const desc = m.embeds[0].description;
+      for (const line of desc.split("\n")) {
+        const match = cooldownRegex.exec(line);
+        if (!match) continue;
 
-      const reminderName = match[1].toLowerCase();
-      if (!await hasReminderEnabled(message.author.id, reminderName)) continue;
+        const reminderName = match[1].toLowerCase();
+        if (!await hasReminderEnabled(message.author.id, reminderName)) continue;
 
-      const reminder = match[2];
-      const timeMatch = timeRegex.exec(reminder);
-      if (!timeMatch) {
-        await assignReminders(message.author.id, reminderName, "0");
+        const reminder = match[2];
+        const timeMatch = timeRegex.exec(reminder);
+        if (!timeMatch) {
+          await assignReminders(message.author.id, reminderName, "0");
+        }
+        else {
+          const minutes = timeMatch.groups.minutes || "0";
+          const seconds = timeMatch.groups.seconds || "0";
+          const reminderTime = Math.ceil(+Date.now() / 1000) + toSeconds(minutes, seconds);
+          await assignReminders(message.author.id, reminderName, reminderTime.toString());
+        }
+        await m.react("1408800862301585488");
       }
-      else {
-        const minutes = timeMatch.groups.minutes || "0";
-        const seconds = timeMatch.groups.seconds || "0";
-        const reminderTime = Math.ceil(+Date.now() / 1000) + toSeconds(minutes, seconds);
-        await assignReminders(message.author.id, reminderName, reminderTime.toString());
-      }
-
-    }
-  });
+    });
 
   collector.on("end", collected => {
     if (!collected.size) return;
