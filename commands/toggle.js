@@ -6,7 +6,6 @@ module.exports = {
   aliases: ["t", "set"],
   description: "do stuff bro",
   execute: async (msg, args) => {
-    console.log(msg.author.username);
     const user_data = await prisma.user.upsert({
       where: { id: msg.author.id },
       update: {},
