@@ -6,7 +6,7 @@ const {
   toSeconds,
   anyRemindersEnabled,
   hasReminderEnabled,
-} = require("../utils/helpers.js");
+} = require("../utils/database_helpers.js");
 
 const cooldownRegex = /.*\*\*`(Drop|Grab|Series)\s*.*\*\*(.*)\*\*/;
 const timeRegex = /^(?:(?<minutes>\d+)m)?\s*(?:(?<seconds>\d+)s)?$/i;
@@ -15,6 +15,7 @@ module.exports = {
   name: Events.MessageCreate,
   async execute(message) {
     if (message.author.id == constants.SOFI) {
+      sofiHandler(message);
       return;
     }
 
@@ -38,6 +39,13 @@ module.exports = {
     }
   },
 };
+
+function sofiHandler(message) {
+  // this is for grab message
+  console.log("im sofing it so hard");
+  return;
+}
+
 
 async function sofiCooldownHandler(message) {
   // return if user doesn't have any reminders enabled
