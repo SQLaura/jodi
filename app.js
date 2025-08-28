@@ -1,4 +1,4 @@
-const { Client, ActivityType, Events, Collection, GatewayIntentBits } = require("discord.js");
+const { Client, Collection, GatewayIntentBits } = require("discord.js");
 const fs = require("node:fs");
 const client = new Client(
   {
@@ -50,10 +50,5 @@ for (const commandFile of commands) {
 
 console.log(`Loaded ${i} commands successfully`);
 divider();
-
-client.once(Events.ClientReady, bot => {
-  console.log(`Logged in as ${bot.user.username}`);
-  client.user.setActivity("a barbershop haircut that cost a quarter", { type: ActivityType.Custom });
-});
 
 client.login(process.env.BOT_TOKEN);
