@@ -25,6 +25,6 @@
     "prepare": "husky",
     "test": "exit 0",
     "bot": "bun --env-file=.env --watch run .",
-    "debug": "bun --env-file=.env --watch --inspect=6969 run ."
+    "debug": "node --env-file=.env --watch --inspect=6969 ."
   }
 }
