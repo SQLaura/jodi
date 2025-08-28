@@ -38,7 +38,9 @@ module.exports = {
     if (!await isRegistered(message.author.id)) return;
     // only registered users will pass through here
 
-    if (message.content.split(" ")[0] == "scd") {
+    const command = message.content.split(" ")[0].toLowerCase();
+
+    if (command === "scd") {
       await setChannel(message.author.id, message.channel.id);
       await sofiCooldownHandler(message);
     }
