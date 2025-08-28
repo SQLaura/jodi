@@ -23,6 +23,7 @@
   "scripts": {
     "prepare": "husky",
     "test": "exit 0",
-    "bot": "node --env-file=.env --watch ."
+    "bot": "node --env-file=.env --watch .",
+    "debug": "node --env-file=.env --watch --inspect=6969 ."
   }
 }
