@@ -53,6 +53,13 @@ async function assignReminders(id, reminderName, time) {
   });
 }
 
+async function setChannel(id, channel) {
+  await prisma.user.update({
+    where: { id },
+    data: { channel },
+  });
+}
+
 function toSeconds(minutes, seconds) {
   return (Number(minutes) * 60) + Number(seconds);
 }
@@ -63,4 +70,5 @@ module.exports = {
   toSeconds,
   anyRemindersEnabled,
   hasReminderEnabled,
+  setChannel,
 };

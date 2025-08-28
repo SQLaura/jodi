@@ -6,6 +6,7 @@ const {
   toSeconds,
   anyRemindersEnabled,
   hasReminderEnabled,
+  setChannel,
 } = require("../utils/database_helpers.js");
 
 const cooldownRegex = /.*\*\*`(Drop|Grab|Series)\s*.*\*\*(.*)\*\*/;
@@ -31,10 +32,13 @@ module.exports = {
       await command.execute(message, args);
     };
 
+    if (!message.content.toLowerCase().startsWith("s")) return;
+
     if (!await isRegistered(message.author.id)) return;
     // only registered users will pass through here
 
     if (message.content.split(" ")[0] == "scd") {
+      await setChannel(message.author.id, message.channel.id);
       await sofiCooldownHandler(message);
     }
   },
