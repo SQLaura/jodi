@@ -8,22 +8,23 @@
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
-    "@eslint/js": "^9.32.0",
-    "@types/node": "^24.1.0",
-    "eslint": "^9.32.0",
+    "@eslint/js": "^9.34.0",
+    "@types/node": "^24.3.0",
+    "eslint": "^9.34.0",
     "husky": "^9.1.7",
-    "typescript": "^5.8.3"
+    "prisma": "^6.15.0",
+    "typescript": "^5.9.2"
   },
   "dependencies": {
-    "@prisma/client": "6.12.0",
-    "discord.js": "^14.21.0",
-    "prisma": "^6.12.0",
+    "@prisma/client": "6.15.0",
+    "discord.js": "^14.22.1",
+    "node-cron": "^4.2.1",
     "sqlite3": "^5.1.7"
   },
   "scripts": {
     "prepare": "husky",
     "test": "exit 0",
-    "bot": "node --env-file=.env --watch .",
-    "debug": "node --env-file=.env --watch --inspect=6969 ."
+    "bot": "bun --env-file=.env --watch run .",
+    "debug": "bun --env-file=.env --watch --inspect=6969 run ."
   }
 }
