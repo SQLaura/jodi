@@ -1,4 +1,4 @@
-const { Events, Message } = require("discord.js");
+const { Events, Message, TextChannel, ActionRow } = require("discord.js");
 const constants = require("../constants.js");
 const {
   isRegistered,
@@ -44,6 +44,10 @@ module.exports = {
       await setChannel(message.author.id, message.channel.id);
       await sofiCooldownHandler(message);
     }
+    else if (command === "sd") {
+      await setChannel(message.author.id, message.channel.id);
+      await sofiDropHandler(message);
+    }
   },
 };
 
@@ -63,6 +67,29 @@ async function sofiHandler(message) {
   return;
 }
 
+/** @param { Message } message */
+async function sofiDropHandler(message) {
+  // drop message handler
+
+  /** @param { Message } m */
+  const filter = m =>
+    m.author.id === constants.SOFI &&
+    m.mentions.parsedUsers.first().id === message.author.id &&
+    m.attachments.size !== 0;
+  const collector = /** @type {TextChannel} */ (message.channel)
+    .createMessageCollector({ filter, time: 5000 });
+
+  collector.on("collect", (m) => {
+    const actionRow = m.components.at(0);
+    if (!(actionRow instanceof ActionRow)) return;
+    if (actionRow.components.length !== 4) return;
+    assignReminders(message.author.id, "drop", Math.ceil(+Date.now() / 1000) + 8 * 60);
+  });
+
+  collector.on("end", collected => {
+    if (!collected.size) return;
+  });
+}
 
 async function sofiCooldownHandler(message) {
   // return if user doesn't have any reminders enabled
