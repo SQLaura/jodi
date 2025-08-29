@@ -7,7 +7,7 @@ async function getUserCache(id) {
   let userData = null;
   if (!cache.has(id)) {
     userData = await prisma.user.findUnique({ where: { id } });
-    cache.set(id, userData);
+    if (userData) cache.set(id, userData);
   }
   else {
     userData = cache.get(id);

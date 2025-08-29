@@ -5,7 +5,7 @@ const {
 } = require("./cache_helpers");
 
 async function isRegistered(id) {
-  return cache.has(id);
+  return !!await getUserCache(id);
 }
 
 function isWithinRange(stored, target, threadshold = 5) {
@@ -36,12 +36,14 @@ async function assignReminders(id, reminderName, time) {
   if (!isWithinRange(reminderData, time)) {
     // update the time in db if the new time is not in range of 5 seconds from old one
     userData[reminderName] = String(time);
+    await prisma.user.update({
+      where: { id },
+      data: userData,
+    });
+    await cache.set(id, userData);
+    return true;
   }
-  await prisma.user.update({
-    where: { id },
-    data: userData,
-  });
-  await cache.set(id, userData);
+  return false;
 }
 
 async function setChannel(id, channel) {
