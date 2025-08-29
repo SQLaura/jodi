@@ -76,6 +76,7 @@ async function sofiDropHandler(message) {
   /** @param { Message } m */
   const filter = m =>
     m.author.id === constants.SOFI &&
+    !!m.mentions &&
     m.mentions.parsedUsers.first().id === message.author.id &&
     m.attachments.size !== 0;
   const collector = /** @type {TextChannel} */ (message.channel)
