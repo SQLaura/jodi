@@ -109,6 +109,7 @@ async function sofiCooldownHandler(message) {
     /** @param { Message } m */
     async (m) => {
       const desc = m.embeds[0].description;
+      let updated = false;
       for (const line of desc.split("\n")) {
         const match = cooldownRegex.exec(line);
         if (!match) continue;
@@ -119,16 +120,16 @@ async function sofiCooldownHandler(message) {
         const reminder = match[2];
         const timeMatch = timeRegex.exec(reminder);
         if (!timeMatch) {
-          await assignReminders(message.author.id, reminderName, "0");
+          if (await assignReminders(message.author.id, reminderName, "0")) updated = true;
         }
         else {
           const minutes = timeMatch.groups.minutes || "0";
           const seconds = timeMatch.groups.seconds || "0";
           const reminderTime = Math.ceil(+Date.now() / 1000) + toSeconds(minutes, seconds);
-          await assignReminders(message.author.id, reminderName, reminderTime.toString());
+          if (await assignReminders(message.author.id, reminderName, reminderTime.toString())) updated = true;
         }
-        await m.react("1408800862301585488");
       }
+      if (updated) await m.react("1408800862301585488");
     });
 
   collector.on("end", collected => {
