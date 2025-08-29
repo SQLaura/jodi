@@ -1,20 +1,27 @@
 const prisma = require("../prismaConnection");
 const { EmbedBuilder } = require("discord.js");
+const {
+  cache,
+  getUserCache,
+} = require("../utils/cache_helpers");
 
 module.exports = {
   name: "toggle",
   aliases: ["t", "set"],
   description: "do stuff bro",
   execute: async (msg, args) => {
-    const user_data = await prisma.user.upsert({
-      where: { id: msg.author.id },
-      update: {},
-      create: { id: msg.author.id },
-    });
-    let drop = user_data.drop_enabled;
-    let grab = user_data.grab_enabled;
-    let series = user_data.series_enabled;
-    let quest = user_data.quest_enabled;
+    let userData = await getUserCache(msg.author.id);
+    if (!userData) {
+      userData = await prisma.user.upsert({
+        where: { id: msg.author.id },
+        update: {},
+        create: { id: msg.author.id },
+      });
+    }
+    let drop = userData.drop_enabled;
+    let grab = userData.grab_enabled;
+    let series = userData.series_enabled;
+    let quest = userData.quest_enabled;
     let modified = false;
 
     if (args.length != 0) {
@@ -49,17 +56,18 @@ module.exports = {
           break;
         }
 
+        userData.drop_enabled = drop;
+        userData.grab_enabled = grab;
+        userData.series_enabled = series;
+        userData.quest_enabled = quest;
+
         await prisma.user.update({
           where: {
             id: msg.author.id,
           },
-          data: {
-            drop_enabled: drop,
-            grab_enabled: grab,
-            series_enabled: series,
-            quest_enabled: quest,
-          },
+          data: userData,
         });
+        cache.set(msg.author.id, userData);
       };
     }
 
