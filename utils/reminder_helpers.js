@@ -37,9 +37,11 @@ async function checkReminders(client) {
       if (currentTime + 5 >= reminderTime) {
         /** @type {TextChannel} */
         const channel = await client.channels.fetch(userData.channel);
+        await assignReminders(userID, reminder, "0");
+        userData[reminder] = "0";
+
         setTimeout(() => {
           channel.send(`<@${userID}> your **\`${reminder}\`** is ready!`);
-          assignReminders(userID, reminder, "0");
         }, (reminderTime - currentTime) * 1000);
       }
     }
