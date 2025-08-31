@@ -72,20 +72,26 @@ async function sofiHandler(message) {
 /** @param { Message } message */
 async function sofiDropHandler(message) {
   // drop message handler
+  if (!await hasReminderEnabled(message.author.id, "drop")) return;
 
   /** @param { Message } m */
-  const filter = m =>
-    m.author.id === constants.SOFI &&
-    !!m.mentions &&
-    m.mentions.parsedUsers.first().id === message.author.id &&
-    m.attachments.size !== 0;
+  function filter(m) {
+    if (m.author.id !== constants.SOFI) return false;
+    if (!m.mentions) return false;
+    const firstMention = m.mentions.parsedUsers.first();
+    if (!firstMention) return false;
+    if (firstMention.id !== message.author.id) return false;
+    if (m.attachments.size === 0) return false;
+    const actionRow = m.components.at(0);
+    if (!(actionRow instanceof ActionRow)) return false;
+    if (actionRow.components.length !== 4) return false;
+    return true;
+  }
+
   const collector = /** @type {TextChannel} */ (message.channel)
     .createMessageCollector({ filter, time: 5000 });
 
-  collector.on("collect", (m) => {
-    const actionRow = m.components.at(0);
-    if (!(actionRow instanceof ActionRow)) return;
-    if (actionRow.components.length !== 4) return;
+  collector.on("collect", () => {
     assignReminders(message.author.id, "drop", Math.ceil(+Date.now() / 1000) + 8 * 60);
   });
 
@@ -94,6 +100,7 @@ async function sofiDropHandler(message) {
   });
 }
 
+/** @param { Message } message */
 async function sofiCooldownHandler(message) {
   // return if user doesn't have any reminders enabled
   if (!await anyRemindersEnabled(message.author.id)) return;
@@ -103,7 +110,8 @@ async function sofiCooldownHandler(message) {
     m.author.id === constants.SOFI &&
     m.embeds.length > 0 && m.embeds[0].author &&
       m.embeds[0].author.name.includes(message.author.username);
-  const collector = message.channel.createMessageCollector({ filter, time: 5000 });
+  const collector = /** @type {TextChannel} */ (message.channel)
+    .createMessageCollector({ filter, time: 5000 });
 
   collector.on("collect",
     /** @param { Message } m */
