@@ -56,8 +56,8 @@ async function setChannel(id, channel) {
   cache.set(id, userData);
 }
 
-function toSeconds(minutes, seconds) {
-  return (Number(minutes) * 60) + Number(seconds);
+function toSeconds(hours, minutes, seconds) {
+  return (Number(hours) * 3600) + (Number(minutes) * 60) + Number(seconds);
 }
 
 module.exports = {
