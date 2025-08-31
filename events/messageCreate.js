@@ -10,7 +10,7 @@ const {
 } = require("../utils/database_helpers.js");
 
 const cooldownRegex = /.*\*\*`(Drop|Grab|Series)\s*.*\*\*(.*)\*\*/;
-const timeRegex = /^(?:(?<minutes>\d+)m)?\s*(?:(?<seconds>\d+)s)?$/i;
+const timeRegex = /^(?:(?<hours>\d+)h)?\s*(?:(?<minutes>\d+)m)?\s*(?:(?<seconds>\d+)s)?$/i;
 const grabRegex = /.*\(`[!a-zA-Z0-9]+`\) \|.*/;
 
 module.exports = {
@@ -48,6 +48,10 @@ module.exports = {
     else if (command === "sd") {
       await setChannel(message.author.id, message.channel.id);
       await sofiDropHandler(message);
+    }
+    else if (command === "ssd") {
+      await setChannel(message.author.id, message.channel.id);
+      await sofiSeriesHandler(message);
     }
   },
 };
@@ -92,13 +96,46 @@ async function sofiDropHandler(message) {
     .createMessageCollector({ filter, time: 5000 });
 
   collector.on("collect", () => {
-    assignReminders(message.author.id, "drop", Math.ceil(+Date.now() / 1000) + 8 * 60);
+    assignReminders(message.author.id, "drop", Math.ceil(+Date.now() / 1000) + 8 * 60); // 8 minutes
   });
 
   collector.on("end", collected => {
     if (!collected.size) return;
   });
 }
+
+async function sofiSeriesHandler(message) {
+  // drop message handler
+  if (!await hasReminderEnabled(message.author.id, "series")) return;
+
+  /** @param { Message } m */
+  function filter(m) {
+    if (m.author.id !== constants.SOFI) return false;
+    if (!m.mentions) return false;
+    const firstMention = m.mentions.parsedUsers.first();
+    if (!firstMention) return false;
+    if (firstMention.id !== message.author.id) return false;
+    if (m.embeds.length === 0) return false;
+    if (!m.embeds.at(0).description.includes("Expires")) return false;
+    const actionRow = m.components.at(0);
+    if (!(actionRow instanceof ActionRow)) return false;
+    if (actionRow.components.length !== 3) return false;
+    return true;
+  }
+
+  const collector = /** @type {TextChannel} */ (message.channel)
+    .createMessageCollector({ filter, time: 5000 });
+
+  collector.on("collect", (m) => {
+    assignReminders(message.author.id, "series", Math.ceil(+Date.now() / 1000) + 86400); // 1 day
+    m.react("1408800862301585488");
+  });
+
+  collector.on("end", collected => {
+    if (!collected.size) return;
+  });
+}
+
 
 /** @param { Message } message */
 async function sofiCooldownHandler(message) {
@@ -131,9 +168,10 @@ async function sofiCooldownHandler(message) {
           if (await assignReminders(message.author.id, reminderName, "0")) updated = true;
         }
         else {
+          const hours = timeMatch.groups.hours || "0";
           const minutes = timeMatch.groups.minutes || "0";
           const seconds = timeMatch.groups.seconds || "0";
-          const reminderTime = Math.ceil(+Date.now() / 1000) + toSeconds(minutes, seconds);
+          const reminderTime = Math.ceil(+Date.now() / 1000) + toSeconds(hours, minutes, seconds);
           if (await assignReminders(message.author.id, reminderName, reminderTime.toString())) updated = true;
         }
       }
