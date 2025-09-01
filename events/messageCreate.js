@@ -18,7 +18,7 @@ module.exports = {
   /** @param { Message } message */
   async execute(message) {
     if (message.author.id === constants.SOFI) {
-      sofiHandler(message);
+      sofiGrabHandler(message);
       return;
     }
 
@@ -57,7 +57,7 @@ module.exports = {
 };
 
 /** @param { Message } message */
-async function sofiHandler(message) {
+async function sofiGrabHandler(message) {
   // grab message handler
   const mentions = message.mentions.parsedUsers;
   if (mentions.size === 0) return;
