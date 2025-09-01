@@ -33,7 +33,14 @@ async function anyRemindersEnabled(id) {
 async function assignReminders(id, reminderName, time) {
   const userData = await getUserCache(id);
   const reminderData = userData[reminderName];
-  if (!isWithinRange(reminderData, time)) {
+  let withinRange = false;
+  if (reminderName == "series") {
+    withinRange = isWithinRange(reminderData, time, 60);
+  }
+  else {
+    withinRange = isWithinRange(reminderData, time);
+  }
+  if (!withinRange) {
     // update the time in db if the new time is not in range of 5 seconds from old one
     userData[reminderName] = String(time);
     await prisma.user.update({
