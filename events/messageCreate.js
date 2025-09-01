@@ -68,14 +68,14 @@ async function sofiGrabHandler(message) {
   const user = mentions.first();
   if (!await isRegistered(user.id)) return;
 
-  assignReminders(user.id, "grab", (Math.ceil(+Date.now() / 1000) + 4 * 60).toString());
+  const reminderTime = Math.ceil(+Date.now() / 1000) + 4 * 60;
+  assignReminders(user.id, "grab", reminderTime.toString());
   message.react("1408800862301585488");
   return;
 }
 
 /** @param { Message } message */
 async function sofiDropHandler(message) {
-  // drop message handler
   if (!await hasReminderEnabled(message.author.id, "drop")) return;
 
   /** @param { Message } m */
@@ -96,7 +96,8 @@ async function sofiDropHandler(message) {
     .createMessageCollector({ filter, time: 5000 });
 
   collector.on("collect", () => {
-    assignReminders(message.author.id, "drop", Math.ceil(+Date.now() / 1000) + 8 * 60); // 8 minutes
+    const reminderTime = Math.ceil(+Date.now() / 1000) + 8 * 60; // 8 minutes
+    assignReminders(message.author.id, "drop", reminderTime.toString());
   });
 
   collector.on("end", collected => {
@@ -105,7 +106,6 @@ async function sofiDropHandler(message) {
 }
 
 async function sofiSeriesHandler(message) {
-  // drop message handler
   if (!await hasReminderEnabled(message.author.id, "series")) return;
 
   /** @param { Message } m */
@@ -127,7 +127,8 @@ async function sofiSeriesHandler(message) {
     .createMessageCollector({ filter, time: 5000 });
 
   collector.on("collect", (m) => {
-    assignReminders(message.author.id, "series", Math.ceil(+Date.now() / 1000) + 86400); // 1 day
+    const reminderTime = Math.ceil(+Date.now() / 1000) + 86400; // 1 day
+    assignReminders(message.author.id, "series", reminderTime.toString());
     m.react("1408800862301585488");
   });
 
