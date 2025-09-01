@@ -12,6 +12,7 @@ const {
 const cooldownRegex = /.*\*\*`(Drop|Grab|Series)\s*.*\*\*(.*)\*\*/;
 const timeRegex = /^(?:(?<hours>\d+)h)?\s*(?:(?<minutes>\d+)m)?\s*(?:(?<seconds>\d+)s)?$/i;
 const grabRegex = /.*\(`[!a-zA-Z0-9]+`\) \|.*/;
+const questRegex = /.*•.*•.*:\s*(.*)/;
 
 module.exports = {
   name: Events.MessageCreate,
@@ -53,6 +54,10 @@ module.exports = {
       await setChannel(message.author.id, message.channel.id);
       await sofiSeriesHandler(message);
     }
+    else if (["stasks", "stask", "squest", "squests", "sdaily"].includes(command)) {
+      await setChannel(message.author.id, message.channel.id);
+      await sofiQuestHandler(message);
+    }
   },
 };
 
@@ -73,70 +78,6 @@ async function sofiGrabHandler(message) {
   message.react("1408800862301585488");
   return;
 }
-
-/** @param { Message } message */
-async function sofiDropHandler(message) {
-  if (!await hasReminderEnabled(message.author.id, "drop")) return;
-
-  /** @param { Message } m */
-  function filter(m) {
-    if (m.author.id !== constants.SOFI) return false;
-    if (!m.mentions) return false;
-    const firstMention = m.mentions.parsedUsers.first();
-    if (!firstMention) return false;
-    if (firstMention.id !== message.author.id) return false;
-    if (m.attachments.size === 0) return false;
-    const actionRow = m.components.at(0);
-    if (!(actionRow instanceof ActionRow)) return false;
-    if (actionRow.components.length !== 4) return false;
-    return true;
-  }
-
-  const collector = /** @type {TextChannel} */ (message.channel)
-    .createMessageCollector({ filter, time: 5000 });
-
-  collector.on("collect", () => {
-    const reminderTime = Math.ceil(+Date.now() / 1000) + 8 * 60; // 8 minutes
-    assignReminders(message.author.id, "drop", reminderTime.toString());
-  });
-
-  collector.on("end", collected => {
-    if (!collected.size) return;
-  });
-}
-
-async function sofiSeriesHandler(message) {
-  if (!await hasReminderEnabled(message.author.id, "series")) return;
-
-  /** @param { Message } m */
-  function filter(m) {
-    if (m.author.id !== constants.SOFI) return false;
-    if (!m.mentions) return false;
-    const firstMention = m.mentions.parsedUsers.first();
-    if (!firstMention) return false;
-    if (firstMention.id !== message.author.id) return false;
-    if (m.embeds.length === 0) return false;
-    if (!m.embeds.at(0).description.includes("Expires")) return false;
-    const actionRow = m.components.at(0);
-    if (!(actionRow instanceof ActionRow)) return false;
-    if (actionRow.components.length !== 3) return false;
-    return true;
-  }
-
-  const collector = /** @type {TextChannel} */ (message.channel)
-    .createMessageCollector({ filter, time: 5000 });
-
-  collector.on("collect", (m) => {
-    const reminderTime = Math.ceil(+Date.now() / 1000) + 86400; // 1 day
-    assignReminders(message.author.id, "series", reminderTime.toString());
-    m.react("1408800862301585488");
-  });
-
-  collector.on("end", collected => {
-    if (!collected.size) return;
-  });
-}
-
 
 /** @param { Message } message */
 async function sofiCooldownHandler(message) {
@@ -181,5 +122,99 @@ async function sofiCooldownHandler(message) {
 
   collector.on("end", collected => {
     if (!collected.size) return;
+  });
+}
+
+/** @param { Message } message */
+async function sofiDropHandler(message) {
+  if (!await hasReminderEnabled(message.author.id, "drop")) return;
+
+  /** @param { Message } m */
+  function filter(m) {
+    if (m.author.id !== constants.SOFI) return false;
+    if (!m.mentions) return false;
+    const firstMention = m.mentions.parsedUsers.first();
+    if (!firstMention) return false;
+    if (firstMention.id !== message.author.id) return false;
+    if (m.attachments.size === 0) return false;
+    const actionRow = m.components.at(0);
+    if (!(actionRow instanceof ActionRow)) return false;
+    if (actionRow.components.length !== 4) return false;
+    return true;
+  }
+
+  const collector = /** @type {TextChannel} */ (message.channel)
+    .createMessageCollector({ filter, time: 5000 });
+
+  collector.on("collect", () => {
+    const reminderTime = Math.ceil(+Date.now() / 1000) + 8 * 60; // 8 minutes
+    assignReminders(message.author.id, "drop", reminderTime.toString());
+  });
+
+  collector.on("end", collected => {
+    if (!collected.size) return;
+  });
+}
+
+/** @param { Message } message */
+async function sofiSeriesHandler(message) {
+  if (!await hasReminderEnabled(message.author.id, "series")) return;
+
+  /** @param { Message } m */
+  function filter(m) {
+    if (m.author.id !== constants.SOFI) return false;
+    if (!m.mentions) return false;
+    const firstMention = m.mentions.parsedUsers.first();
+    if (!firstMention) return false;
+    if (firstMention.id !== message.author.id) return false;
+    if (m.embeds.length === 0) return false;
+    if (!m.embeds.at(0).description.includes("Expires")) return false;
+    const actionRow = m.components.at(0);
+    if (!(actionRow instanceof ActionRow)) return false;
+    if (actionRow.components.length !== 3) return false;
+    return true;
+  }
+
+  const collector = /** @type {TextChannel} */ (message.channel)
+    .createMessageCollector({ filter, time: 5000 });
+
+  collector.on("collect", (m) => {
+    const reminderTime = Math.ceil(+Date.now() / 1000) + 86400; // 1 day
+    assignReminders(message.author.id, "series", reminderTime.toString());
+    m.react("1408800862301585488");
+  });
+
+  collector.on("end", collected => {
+    if (!collected.size) return;
+  });
+}
+
+/** @param { Message } message */
+async function sofiQuestHandler(message) {
+  if (!await hasReminderEnabled(message.author.id, "quest")) return;
+
+  /** @param { Message } m */
+  let time = null;
+  function filter(m) {
+    if (m.author.id !== constants.SOFI) return false;
+    if (m.embeds.length === 0) return false;
+    const firstEmbed = m.embeds.at(0);
+    if (!firstEmbed.footer || !firstEmbed.footer.text) return false;
+    [, time] = questRegex.exec(firstEmbed.footer.text) || [];
+    if (!time) return false;
+    return true;
+  }
+
+  const collector = /** @type {TextChannel} */ (message.channel)
+    .createMessageCollector({ filter, time: 5000 });
+
+  collector.on("collect", (m) => {
+    const timeMatch = timeRegex.exec(time.trim());
+    const hours = timeMatch.groups.hours || "0";
+    const minutes = timeMatch.groups.minutes || "0";
+    const seconds = timeMatch.groups.seconds || "0";
+    const reminderTime = Math.ceil(+Date.now() / 1000) + toSeconds(hours, minutes, seconds);
+    assignReminders(message.author.id, "quest", reminderTime.toString());
+    m.react("1408800862301585488");
   });
 }
