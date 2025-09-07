@@ -139,7 +139,7 @@ async function sofiDropHandler(message) {
     if (m.attachments.size === 0) return false;
     const actionRow = m.components.at(0);
     if (!(actionRow instanceof ActionRow)) return false;
-    if (actionRow.components.length !== 4) return false;
+    if (actionRow.components.length !== 3) return false;
     return true;
   }
 
